@@ -6,7 +6,7 @@
   <version>0.1</version>
   <name>caesarhu.math/primes</name>
   <description>A prime number library for clojure.</description>
-  <url>https://github.com/caesarhu.math/primes</url>
+  <url>https://github.com/caesarhu/primes</url>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>11</maven.compiler.source>
@@ -24,9 +24,9 @@
     </developer>
   </developers>
   <scm>
-    <url>https://github.com/caesarhu.math/primes</url>
-    <connection>scm:git:git://github.com/caesarhu.math/primes.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/caesarhu.math/primes.git</developerConnection>
+    <url>https://github.com/caesarhu/primes</url>
+    <connection>scm:git:git://github.com/caesarhu/primes.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/caesarhu/primes.git</developerConnection>
     <tag>v0.1</tag>
   </scm>
   <dependencies>
@@ -34,6 +34,11 @@
       <groupId>org.clojure</groupId>
       <artifactId>clojure</artifactId>
       <version>1.10.3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.clojure</groupId>
+      <artifactId>math.numeric-tower</artifactId>
+      <version>0.0.5</version>
     </dependency>
   </dependencies>
   <build>
