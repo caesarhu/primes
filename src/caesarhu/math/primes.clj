@@ -1,12 +1,15 @@
 (ns caesarhu.math.primes
-  (:require [clojure.math.numeric-tower :as math])
-  (:import [caesarhu.math sieve]))
+  (:require [clojure.math.numeric-tower :as math]
+            [caesarhu.math.sieve :refer [primes-paged]]))
 
 (set! *unchecked-math* true)
 
 (def primes
   "Lazy sequence of prime numbers"
-  (iterator-seq (new sieve)))
+  (let [p (primes-paged)]
+    (lazy-seq
+     (cons (first p)
+           (next p)))))
 
 (defn- test-prime
   "Determine if a number is prime by looping through divisors"
