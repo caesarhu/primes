@@ -95,6 +95,6 @@
 
 (defn totient
   [n]
-  (let [fs (distinct (factors n))]
-    (apply * n (map #(- 1 (/ %)) fs))))
-
+  (if (= n 1) 1
+      (let [fs (distinct (factors n))]
+        (apply * n (map #(- 1 (/ %)) fs)))))
