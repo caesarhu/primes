@@ -93,3 +93,8 @@
        (map inc)
        (reduce *)))
 
+(defn totient
+  [n]
+  (let [fs (->> (factors n) frequencies keys)]
+    (apply * n (map #(- 1 (/ %)) fs))))
+
