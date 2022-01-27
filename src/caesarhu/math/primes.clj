@@ -95,6 +95,6 @@
 
 (defn totient
   [n]
-  (let [fs (->> (factors n) frequencies keys)]
+  (let [fs (distinct (factors n))]
     (apply * n (map #(- 1 (/ %)) fs))))
 
