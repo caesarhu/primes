@@ -8,7 +8,8 @@ Add :deps alias in deps.edn
 
 ```clojure
 {:deps {caesarhu.math/primes {:git/url "https://github.com/caesarhu/primes"
-                              :sha "04602f15faab114ea7f80c485c410af276ce228a"}}}
+                              :git/tag "v0.1.1"
+                              :git/sha "73b2281"}}}
 ```
 
 ## Example usage
