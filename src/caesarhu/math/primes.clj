@@ -1,6 +1,6 @@
 (ns caesarhu.math.primes
   (:require [clojure.math.numeric-tower :as math]
-            [caesarhu.math.sieve :refer [primes-paged]]))
+            [caesarhu.math.sieve.rosetta :refer [primes-paged]]))
 
 (set! *unchecked-math* true)
 
@@ -98,3 +98,8 @@
   (if (= n 1) 1
       (let [fs (distinct (factors n))]
         (apply * n (map #(- 1 (/ %)) fs)))))
+
+(set! *unchecked-math* false)
+
+(comment
+  (time (count (take-while #(< % 1000000) primes))))
