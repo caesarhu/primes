@@ -1,6 +1,7 @@
 {:paths ["src" "resources"]
  :deps {org.clojure/clojure {:mvn/version "1.11.1"}
-        org.clojure/math.numeric-tower {:mvn/version "0.0.5"}}
+        org.clojure/math.numeric-tower {:mvn/version "0.0.5"}
+        net.clojars.john/injest {:mvn/version "0.1.0-beta.8"}}
  :aliases
  {:build {:deps {io.github.seancorfield/build-clj
                  {:git/tag "v0.8.0" :git/sha "9bd8b8a"}}
