@@ -60,11 +60,12 @@
 
 (defn spin-primes
   [sieve-fn]
-  (concat [2 3 5 7]
+  (concat [2 3 5 7 11]
           (sieve-fn (spin wheel2357 11))))
 
 (comment
-  (time (nth (spin-primes sieve-pq) 1000000))
+  (time (take-while #(< % 100) (spin-primes sieve-sm)))
   (time (count (take-while #(< % 100) (spin-primes sieve-sm))))
   (bitset-sieve 100)
-  (time (count (bitset-sieve 1000000))))
+  (time (count (bitset-sieve 1000000000)))
+  )

@@ -1,7 +1,10 @@
 (ns caesarhu.math.sieve.atkin
   (:require [clojure.math.numeric-tower :as math]
             [clojure.core.reducers :as r]
-            [injest.path :refer [+> +>> x>> =>>]]))
+            [injest.path :refer [+> +>> x>> =>>]])
+  (:import [java.util BitSet]))
+
+(set! *unchecked-math* true)
 
 (def base 60)
 (def origin-primes [false false true true false true])
@@ -25,15 +28,33 @@
                   v2))
               v (range 5 (inc sqrt) 2))))
 
+(defn remove-square-bit
+  [^long limit ^BitSet v]
+  (let [sqrt (first (math/exact-integer-sqrt limit))]
+    (doseq [i (range 5 (inc sqrt) 2)
+            :when (.get v i)
+            :let [ii (* i i)]]
+      (doseq [j (range ii limit ii)]
+        (.clear v j)))
+    v))
+
 (defn filter-primes
   [v]
   (=>> (range 2 (count v))
        (filter #(get v %))))
 
+(defn init-primes
+  [^long limit]
+  (let [v (BitSet. (inc limit))]
+    (.set v 2)
+    (.set v 3)
+    (.set v 5)
+    v))
+
 (defn atkin-v1
   [^long limit]
   (let [sqrt (inc (first (math/exact-integer-sqrt limit)))
-        primes (atom (vec (concat origin-primes (repeat (- limit 5) false))))]
+        primes (init-primes limit)]
     (doseq [x (range 1 sqrt)
             :let [xx (* x x)
                   xx3 (* 3 xx)
@@ -44,39 +65,15 @@
                     q2 (+ xx3 yy)
                     q3 (- xx3 yy)]]
         (when (and (< q1 limit) (s1 (mod q1 base)))
-          (swap! primes toggle q1))
+          (.flip primes q1))
         (when (and (< q2 limit) (s2 (mod q2 base)))
-          (swap! primes toggle q2))
+          (.flip primes q2))
         (when (and (< y x) (< 0 q3 limit) (s3 (mod q3 base)))
-          (swap! primes toggle q3))))
-    (=>> @primes
-         (remove-square)
-         (filter-primes))))
+          (.flip primes q3))))
+    (remove-square-bit limit primes)
+    (take-while pos? (iterate #(.nextSetBit primes (inc %)) 2))))
 
 (defn atkin-v2
-  [^long limit]
-  (let [sqrt (first (math/exact-integer-sqrt limit))]
-    (loop [x 1
-           vx (vec (concat origin-primes (repeat (- limit 5) false)))]
-      (if (> x sqrt)
-        (->> vx remove-square filter-primes)
-        (let [xx (* x x)
-              xx3 (* 3 xx)
-              vy (loop [y 1
-                        v vx]
-                   (if (> y sqrt)
-                     v
-                     (let [yy (* y y)]
-                       (recur (inc y) (cond-> v
-                                        (when-let [q (and (odd? y) (+ xx3 xx yy))]
-                                          (and (< q limit) (s1 (mod q base)))) (toggle (+ xx3 xx yy))
-                                        (when-let [q (and (odd? x) (even? y) (+ xx3 yy))]
-                                          (and (< q limit) (s2 (mod q base)))) (toggle (+ xx3 yy))
-                                        (when-let [q (and (< y x) (odd? (+ x y)) (- xx3 yy))]
-                                          (and (< q limit) (s3 (mod q base)))) (toggle (- xx3 yy)))))))]
-          (recur (inc x) vy))))))
-
-(defn atkin-v3
   [^long limit]
   (let [sqrt (first (math/exact-integer-sqrt limit))]
     (loop [x 1
@@ -97,7 +94,43 @@
                            vx (range 1 (inc sqrt)))]
           (recur (inc x) vy))))))
 
+(defn atkin-v3
+  [^long limit]
+  (let [sqrt (first (math/exact-integer-sqrt limit))
+        primes (init-primes limit)]
+    (doseq [x (range 1 (inc sqrt))
+            :let [xx4 (* 4 x x)]
+            :while (< xx4 limit)]
+      (doseq [y (range 1 (inc sqrt) 2)
+              :let [yy (* y y)
+                    q (+ xx4 yy)]
+              :while (< q limit)
+              :when (s1 (mod q base))]
+        (.flip primes q)))
+    (doseq [x (range 1 (inc sqrt) 2)
+            :let [xx3 (* 3 x x)]
+            :while (< xx3 limit)]
+      (doseq [y (range 2 (inc sqrt) 2)
+              :let [yy (* y y)
+                    q (+ xx3 yy)]
+              :while (< q limit)
+              :when (s2 (mod q base))]
+        (.flip primes q)))
+    (doseq [x (range 2 (inc sqrt))
+            :let [xx3 (* 3 x x)]]
+      (doseq [y (range (dec x) 0 -2)
+              :let [yy (* y y)
+                    q (- xx3 yy)]
+              :while (< q limit)
+              :when (s3 (mod q base))]
+        (.flip primes q)))
+    (remove-square-bit limit primes)
+    (take-while pos? (iterate #(.nextSetBit primes (inc %)) 2))))
+
+(set! *unchecked-math* false)
+
 (comment
-  (atkin-v1 100)
-  (time (count (atkin-v3 1000000)))
-  (time (count (atkin-v1 1000000))))
+  (atkin-v3 100)
+  (time (count (atkin-v1 1000000)))
+  (time (count (atkin-v3 100000000)))
+  )
