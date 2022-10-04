@@ -176,3 +176,5 @@
                                    (next pgseq)
                                    (+ cnt (count-pg PGBTS pg))))))]
                 (nxt-pg 0 (primes-pages) 1))))
+
+(set! *unchecked-math* false)

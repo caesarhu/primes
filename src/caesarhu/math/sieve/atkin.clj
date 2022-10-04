@@ -97,7 +97,10 @@
 (defn atkin-v3
   [^long limit]
   (let [sqrt (first (math/exact-integer-sqrt limit))
-        primes (init-primes limit)]
+        primes (BitSet. (inc limit))]
+    (.set primes 2)
+    (.set primes 3)
+    (.set primes 5)
     (doseq [x (range 1 (inc sqrt))
             :let [xx4 (* 4 x x)]
             :while (< xx4 limit)]
@@ -131,6 +134,6 @@
 
 (comment
   (atkin-v3 100)
-  (time (count (atkin-v1 1000000)))
-  (time (count (atkin-v3 100000000)))
+  (time (r/reduce + (atkin-v3 2000000)))
+  (time (count (atkin-v2 100000000)))
   )

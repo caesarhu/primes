@@ -65,7 +65,7 @@
 
 (comment
   (time (take-while #(< % 100) (spin-primes sieve-sm)))
-  (time (count (take-while #(< % 100) (spin-primes sieve-sm))))
+  (time (count (take-while #(< % 100000000) (spin-primes sieve-sm))))
   (bitset-sieve 100)
-  (time (count (bitset-sieve 1000000000)))
+  (time (count (bitset-sieve 100000000)))
   )
