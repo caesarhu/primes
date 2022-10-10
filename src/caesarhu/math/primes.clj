@@ -1,6 +1,7 @@
 (ns caesarhu.math.primes
   (:require [clojure.math.numeric-tower :as math]
-            [caesarhu.math.sieve.rosetta :refer [primes-paged]]))
+            [caesarhu.math.sieve.rosetta :refer [primes-paged]]
+            [clojure.core.reducers :as r]))
 
 (set! *unchecked-math* true)
 
@@ -102,5 +103,5 @@
 (set! *unchecked-math* false)
 
 (comment
-  (time (count (take-while #(< % 1000000000) primes)))
+  (time (count (take-while #(< % 100000000) primes)))
   )

@@ -130,10 +130,35 @@
     (remove-square-bit limit primes)
     (take-while pos? (iterate #(.nextSetBit primes (inc %)) 2))))
 
+(defn atkin-v4
+  [^long limit]
+  (let [sqrt (first (math/exact-integer-sqrt limit))
+        primes (BitSet. (inc limit))]
+    (.set primes 2)
+    (.set primes 3)
+    (.set primes 5)
+    (loop [x 1]
+      (if (> x sqrt)
+        (do
+          (remove-square-bit limit primes)
+          (take-while pos? (iterate #(.nextSetBit primes (inc %)) 2)))
+        (let [xx (* x x)
+              xx3 (* 3 xx)]
+          (loop [y 1]
+            (when (<= y sqrt)
+              (let [yy (* y y)]
+                (when-let [q (and (odd? y) (+ xx3 xx yy))]
+                  (and (< q limit) (s1 (mod q base)) (.flip primes q)))
+                (when-let [q (and (odd? x) (even? y) (+ xx3 yy))]
+                  (and (< q limit) (s2 (mod q base)) (.flip primes q)))
+                (when-let [q (and (< y x) (odd? (+ x y)) (- xx3 yy))]
+                  (and (< q limit) (s3 (mod q base)) (.flip primes q)))
+                (recur (inc y)))))
+          (recur (inc x)))))))
+
 (set! *unchecked-math* false)
 
 (comment
-  (atkin-v3 100)
-  (time (r/reduce + (atkin-v3 2000000)))
-  (time (count (atkin-v2 100000000)))
-  )
+  (atkin-v4 100)
+  (time (r/reduce + (atkin-v4 2000000)))
+  (time (count (atkin-v3 2000000))))

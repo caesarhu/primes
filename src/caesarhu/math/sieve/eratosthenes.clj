@@ -1,4 +1,5 @@
 (ns caesarhu.math.sieve.eratosthenes
+  (:require [clojure.core.reducers :as r])
   (:import java.util.PriorityQueue))
 
 (defn bitset-sieve
@@ -63,9 +64,28 @@
   (concat [2 3 5 7 11]
           (sieve-fn (spin wheel2357 11))))
 
+(defn bitset-sieve2
+  [^long bound]
+  (let [candidates (java.util.BitSet. bound)]
+    ;; initialize array to contain [0 0 2 3 4 5 ...]
+    (.set candidates 2)
+    (doseq [idx (range 3 bound 2)]
+      (.set candidates idx))
+    ;; eliminate known non-primes
+    (loop [idx 3]
+      (when (< idx bound)
+        (when-let [next-candidate (.get candidates idx)]
+          (loop [update-idx (* idx idx)]
+            (when (< update-idx bound)
+              (.clear candidates update-idx)
+              (recur (+ idx update-idx)))))
+        (recur (+ idx 2))))
+    ;; return a Clojure seq with only primes in it
+    (take-while pos? (iterate #(.nextSetBit candidates (inc %)) 2))))
+
 (comment
   (time (take-while #(< % 100) (spin-primes sieve-sm)))
-  (time (count (take-while #(< % 100000000) (spin-primes sieve-sm))))
-  (bitset-sieve 100)
+  (time (count (take-while #(< % 2000000) (spin-primes sieve-sm))))
+  (bitset-sieve2 100)
   (time (count (bitset-sieve 100000000)))
   )
