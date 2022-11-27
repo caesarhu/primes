@@ -18,22 +18,22 @@ Add :deps alias in deps.edn
 (require '[caesarhu.primes :as p])
 
 primes: primes lazy sequence
-(take 10 p/primes)
+(take 10 (p/primes))
 => (2 3 5 7 11 13 17 19 23 29)
 
 (p/is-prime? 17)
 => true
 
-(p/primes-range 17)
-=> (2 3 5 7 11 13 17)
+(p/primes 17)
+=> (2 3 5 7 11 13)
 
-(p/primes-range 11 97)
+(p/primes 11 100)
 => (11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97)
 
 (p/factors 100)
 => (5 5 2 2)
 
-(factors 134046 (p/primes-range 677))
+(factors 134046 (p/primes 677))
 => (677 11 3 3 2)
 
 (p/next-probable-prime 468486496846768746873)
