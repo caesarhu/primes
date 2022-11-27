@@ -9,7 +9,7 @@
                             (filter is-prime?)
                             count)]
       (is (= 168 primes-count))
-      (is (= primes-count (->> (take-while #(<= % 1001) primes) count)))
+      (is (= primes-count (->> (take-while #(<= % 1001) (primes)) count)))
       (is (= primes-count (->> (iterate inc 2)
                                (take 1000)
                                (filter probable-prime?)

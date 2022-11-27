@@ -5,12 +5,19 @@
 
 (set! *unchecked-math* true)
 
-(def primes
+(defn primes
   "Lazy sequence of prime numbers"
-  (let [p (primes-paged)]
-    (lazy-seq
-     (cons (first p)
-           (next p)))))
+  ([]
+   (let [p (primes-paged)]
+     (lazy-seq
+      (cons (first p)
+            (next p)))))
+  ([limit]
+   (take-while #(< % limit) (primes)))
+  ([start limit]
+   (->> (primes) 
+        (drop-while #(< % start))
+        (take-while #(< % limit)))))
 
 (defn- test-prime
   "Determine if a number is prime by looping through divisors"
@@ -30,16 +37,6 @@
     (or (zero? (mod x 2))
         (zero? (mod x 3))) false
     :else (test-prime x)))
-
-(defn primes-range
-  "[x y]: x <= primes <= y
-   [x]: primes <= x"
-  ([x y]
-   (->> primes
-        (drop-while #(< % x))
-        (take-while #(<= % y))))
-  ([x]
-   (primes-range 2 x)))
 
 (def ^:private DEFAULT_PRIME_CERTAINTY 100)
 
@@ -68,7 +65,7 @@
            (zero? (rem n p)) (recur (quot n p) prime-seq (cons p result))
            :else (recur n (next prime-seq) result))))))
   ([^long n]
-   (factors n primes)))
+   (factors n (primes))))
 
 (defn product-coll
   [c1 c2]
@@ -102,6 +99,3 @@
 
 (set! *unchecked-math* false)
 
-(comment
-  (time (count (take-while #(< % 100000000) primes)))
-  )
