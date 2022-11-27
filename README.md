@@ -9,7 +9,7 @@ Add :deps alias in deps.edn
 ```clojure
 {:deps {caesarhu.math/primes {:git/url "https://github.com/caesarhu/primes"
                               :git/tag "v0.1.18"
-                              :git/sha "73b2281"}}}
+                              :git/sha "a4db6eb"}}}
 ```
 
 ## Example usage
