@@ -84,8 +84,9 @@
     (take-while pos? (iterate #(.nextSetBit candidates (inc %)) 2))))
 
 (comment
-  (time (take-while #(< % 100) (spin-primes sieve-sm)))
+  (time (->> (take-while #(< % 10000000) (spin-primes sieve-pq))
+             count))
   (time (count (take-while #(< % 2000000) (spin-primes sieve-sm))))
-  (bitset-sieve2 100)
+  (time (count (bitset-sieve2 100000000)))
   (time (count (bitset-sieve 100000000)))
   )

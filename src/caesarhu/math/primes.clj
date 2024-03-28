@@ -12,16 +12,16 @@
      (lazy-seq
       (cons (first p)
             (next p)))))
-  ([limit]
+  ([^long limit]
    (take-while #(< % limit) (primes)))
-  ([start limit]
-   (->> (primes) 
+  ([^long start ^long limit]
+   (->> (primes)
         (drop-while #(< % start))
         (take-while #(< % limit)))))
 
 (defn- test-prime
   "Determine if a number is prime by looping through divisors"
-  [x]
+  [^long x]
   (loop [iter 5 top (Math/sqrt x)]
     (cond
       (> iter top) true
@@ -31,7 +31,7 @@
 
 (defn is-prime?
   "Determines if a given integer is prime."
-  [x]
+  [^long x]
   (cond
     (<= x 3) (< 1 x)
     (or (zero? (mod x 2))
@@ -77,14 +77,14 @@
 
 (defn divisors
   "find all divisors of n"
-  [n]
+  [^long n]
   (let [power-seq (fn [n power]
                     (for [i (range (inc power))]
                       (math/expt n i)))]
     (reduce product-coll (map #(apply power-seq %) (frequencies (factors n))))))
 
 (defn count-divisors
-  [n]
+  [^long n]
   (->> (factors n)
        frequencies
        vals
@@ -92,10 +92,25 @@
        (reduce *)))
 
 (defn totient
-  [n]
+  [^long n]
   (if (= n 1) 1
-      (let [fs (distinct (factors n))]
-        (apply * n (map #(- 1 (/ %)) fs)))))
+      (loop [ps (take-while #(<= (* % %) n) (primes))
+             n n
+             phi n]
+        (if-let [p (first ps)]
+          (if (zero? (mod n p))
+            (recur (rest ps)
+                   (loop [n n]
+                     (if (pos-int? (mod n p)) n
+                         (recur (quot n p))))
+                   (- phi (quot phi p)))
+            (recur (rest ps) n phi))
+          (if (> n 1)
+            (- phi (quot phi n))
+            phi)))))
 
 (set! *unchecked-math* false)
 
+(comment
+  (totient 28)
+  )
