@@ -55,15 +55,14 @@
 (defn factors
   "find all prime factors of n"
   ([^long n custom-primes]
-   (let [sqr (-> n Math/sqrt long)]
-     (loop [n n
-            prime-seq custom-primes
-            result []]
-       (let [p (first prime-seq)]
-         (cond
-           (or (> p sqr) (= n p)) (cons n result)
-           (zero? (rem n p)) (recur (quot n p) prime-seq (cons p result))
-           :else (recur n (next prime-seq) result))))))
+   (loop [n n
+          prime-seq custom-primes
+          result []]
+     (let [p (first prime-seq)]
+       (cond
+         (> (* p p) n) (cons n result)
+         (zero? (rem n p)) (recur (quot n p) prime-seq (cons p result))
+         :else (recur n (next prime-seq) result)))))
   ([^long n]
    (factors n (primes))))
 
@@ -76,7 +75,7 @@
             (*' x y))))
 
 (defn divisors
-  "find all divisors of n"
+  "Find all divisors of n"
   [^long n]
   (let [power-seq (fn [n power]
                     (for [i (range (inc power))]
@@ -84,6 +83,7 @@
     (reduce product-coll (map #(apply power-seq %) (frequencies (factors n))))))
 
 (defn count-divisors
+  "Count all divisors of n"
   [^long n]
   (->> (factors n)
        frequencies
@@ -92,6 +92,7 @@
        (reduce *)))
 
 (defn totient
+  "Find totient function of n"
   [^long n]
   (if (= n 1) 1
       (loop [ps (take-while #(<= (* % %) n) (primes))
@@ -109,8 +110,31 @@
             (- phi (quot phi n))
             phi)))))
 
-(set! *unchecked-math* false)
+(defn- prime-factor
+  [^long limit, ^clojure.lang.PersistentVector n-vec, ^long prime]
+  (let [merge-prime (fn [^clojure.lang.PersistentVector n-vec, ^long i, ^clojure.lang.PersistentArrayMap m]
+                      (update n-vec i (partial merge-with +) m))]
+    (loop [powers (take-while #(< % limit) (iterate (partial * prime) prime))
+           n-vec (merge-prime n-vec prime {prime 1})]
+      (if (empty? powers) n-vec
+          (let [[idx next-idx] (take 2 powers)
+                v (reduce (fn [n-vec i]
+                            (reduce (fn [n-vec j]
+                                      (merge-prime n-vec (+ j i) {prime ((n-vec j) prime)}))
+                                    n-vec
+                                    (range prime (min (- limit i) (inc idx)) prime)))
+                          n-vec
+                          (range idx (if next-idx next-idx limit) idx))]
+            (recur (rest powers) (if next-idx (merge-prime v next-idx {prime 1}) v)))))))
 
-(comment
-  (totient 28)
-  )
+(defn factors-range
+  "Generate all factors to range, return a vector of factros."
+  [^long limit]
+  (reduce (fn [n-vec prime]
+            (if (empty? (n-vec prime))
+              (prime-factor limit n-vec prime)
+              n-vec))
+          (vec (repeat limit {}))
+          (range 2 limit)))
+
+(set! *unchecked-math* false)

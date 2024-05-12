@@ -178,3 +178,7 @@
                 (nxt-pg 0 (primes-pages) 1))))
 
 (set! *unchecked-math* false)
+
+(comment
+  (time (primes-paged-count-to 2500000000))
+  )
