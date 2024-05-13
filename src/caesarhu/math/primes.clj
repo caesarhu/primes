@@ -111,7 +111,7 @@
             phi)))))
 
 (defn prime-factor
-  [^long limit, ^clojure.lang.PersistentVector n-vec, ^long prime]
+  [^long limit, n-vec, ^long prime]
   (let [merge-prime (fn [^clojure.lang.PersistentVector n-vec, ^long i, ^clojure.lang.PersistentArrayMap m]
                       (update n-vec i (partial merge-with +) m))]
     (loop [powers (take-while #(< % limit) (iterate (partial * prime) prime))
