@@ -110,7 +110,7 @@
             (- phi (quot phi n))
             phi)))))
 
-(defn- prime-factor
+(defn prime-factor
   [^long limit, ^clojure.lang.PersistentVector n-vec, ^long prime]
   (let [merge-prime (fn [^clojure.lang.PersistentVector n-vec, ^long i, ^clojure.lang.PersistentArrayMap m]
                       (update n-vec i (partial merge-with +) m))]
