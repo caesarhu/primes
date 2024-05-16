@@ -1,7 +1,8 @@
 (ns caesarhu.math.primes
   (:require [clojure.math.numeric-tower :as math]
             [caesarhu.math.sieve.rosetta :refer [primes-paged]]
-            [clojure.core.reducers :as r]))
+            [clojure.core.reducers :as r]
+            [caesarhu.math.math-tools :refer [digits]]))
 
 (set! *unchecked-math* true)
 
@@ -110,31 +111,38 @@
             (- phi (quot phi n))
             phi)))))
 
-(defn prime-factor
-  [^long limit, n-vec, ^long prime]
-  (let [merge-prime (fn [^clojure.lang.PersistentVector n-vec, ^long i, ^clojure.lang.PersistentArrayMap m]
-                      (update n-vec i (partial merge-with +) m))]
-    (loop [powers (take-while #(< % limit) (iterate (partial * prime) prime))
-           n-vec (merge-prime n-vec prime {prime 1})]
-      (if (empty? powers) n-vec
-          (let [[idx next-idx] (take 2 powers)
-                v (reduce (fn [n-vec i]
-                            (reduce (fn [n-vec j]
-                                      (merge-prime n-vec (+ j i) {prime ((n-vec j) prime)}))
-                                    n-vec
-                                    (range prime (min (- limit i) (inc idx)) prime)))
-                          n-vec
-                          (range idx (if next-idx next-idx limit) idx))]
-            (recur (rest powers) (if next-idx (merge-prime v next-idx {prime 1}) v)))))))
+(defn- inc-last
+  [^clojure.lang.PersistentVector v]
+  (update v (dec (count v)) inc))
 
-(defn factors-range
-  "Generate all factors to range, return a vector of factros."
+(defn power-vec
+  "Generate prime power list."
+  [^long limit, ^long prime]
+  (let [bound (quot limit prime)
+        pe (->> (iterate inc 1) (take-while #(<= (math/expt prime %) limit)) last)]
+    (loop [round 1
+           pv [1]]
+      (if (= pe round)
+        (take bound (cycle pv))
+        (recur (inc round)
+               (inc-last (reduce (fn [nv _] (into nv pv)) pv (range (dec prime)))))))))
+
+(defn range-factors
   [^long limit]
-  (reduce (fn [n-vec prime]
-            (if (empty? (n-vec prime))
-              (prime-factor limit n-vec prime)
-              n-vec))
+  (reduce (fn [v p]
+            (if (not-empty (v p)) v
+                (loop [i p
+                       pv (power-vec limit p)
+                       nv v]
+                  (if (empty? pv) nv
+                      (recur (+ i p)
+                             (next pv)
+                             (update nv i (partial merge-with +) {p (first pv)}))))))
           (vec (repeat limit {}))
-          (range 2 limit)))
+          (range 2 (inc limit))))
 
 (set! *unchecked-math* false)
+
+(comment
+  (time (range-factors 10000000))
+  )
