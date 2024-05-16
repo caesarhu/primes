@@ -115,7 +115,7 @@
   [^clojure.lang.PersistentVector v]
   (update v (dec (count v)) inc))
 
-(defn power-vec
+(defn power-seq
   "Generate prime power list."
   [^long limit, ^long prime]
   (let [bound (quot limit prime)
@@ -132,7 +132,7 @@
   (reduce (fn [v p]
             (if (not-empty (v p)) v
                 (loop [i p
-                       pv (power-vec limit p)
+                       pv (power-seq limit p)
                        nv v]
                   (if (empty? pv) nv
                       (recur (+ i p)
